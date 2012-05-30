@@ -4,7 +4,7 @@ CC=gcc
 
 all: translate_pairs
 
-translate_pairs: translate_pairs.c pairs.h
+translate_pairs: translate_pairs.c 
 	$(CC) $(CFLAGS) -o $@ $^
 
 collect: collect.c
@@ -14,4 +14,7 @@ collect2: collect2.c
 	$(CC) $(CFLAGS) -o $@ $^
 
 clean: 
-	rm -rf *.o 
+	rm -f *.o 
+
+real-clean: 
+	rm -f *.o  rm -f translate_pairs collect collect2
