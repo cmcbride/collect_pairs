@@ -1,3 +1,7 @@
+#pragma once
+#ifndef CHECK_FOPEN_INCLUDED
+#define CHECK_FOPEN_INCLUDED
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
@@ -34,3 +38,5 @@ check_fopen( const char *path, const char *mode )
 
     return fp;
 }
+
+#endif

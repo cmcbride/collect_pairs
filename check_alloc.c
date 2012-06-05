@@ -1,3 +1,7 @@
+#pragma once
+#ifndef CHECK_ALLOC_INCLUDED
+#define CHECK_ALLOC_INCLUDED
+
 #include <stdlib.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -31,3 +35,5 @@ check_alloc( size_t count, size_t size )
 
     return data;
 }
+
+#endif

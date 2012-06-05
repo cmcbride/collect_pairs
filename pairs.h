@@ -12,6 +12,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include "check_fopen.c"
 
 #define PAIR_HEADER_SIZE 256
 #define PAIR_MAGIC ((uint64_t)0x1234567802020202ll)
@@ -109,7 +110,7 @@ pair_read_header( FILE * fp, PAIR_HEADER * hdr )
 
     /* should probably store position, seek to beginning, and go back to previous location */
     rewind( fp );               /* header only makes sense at beginning of file */
-    status = fread( &hdr, sizeof( PAIR_HEADER ), 1, fp );
+    status = fread( hdr, sizeof( PAIR_HEADER ), 1, fp );
     return status;
 }
 
@@ -117,11 +118,72 @@ static inline size_t
 pair_write_data( FILE * fp, const void *data, const PAIR_HEADER hdr, const size_t nitems )
 {
     size_t status;
-
     size_t size = pair_sizeof_data( hdr.pair_format );
 
     status = fwrite( data, size, nitems, fp );
     return status;
+}
+
+static inline size_t
+pair_read_data( FILE * fp, void *data, const PAIR_HEADER hdr, const size_t nitems )
+{
+    size_t status;
+    size_t size = pair_sizeof_data( hdr.pair_format );
+
+    status = fread( data, size, nitems, fp );
+    return status;
+}
+
+typedef struct {
+    char *fn;
+    FILE *fp;
+    PAIR_HEADER hdr;
+} PAIR_FILE;
+
+FILE *
+pf_filepointer( const PAIR_FILE * pf )
+{
+    return pf->fp;
+}
+
+size_t
+pf_nrows( const PAIR_FILE * pf )
+{
+    return ( size_t ) pf->hdr.nrows;
+}
+
+PAIR_FILE
+pf_open_read( char *path )
+{
+    PAIR_FILE pf;
+    pf.fn = path;
+    pf.fp = check_fopen( path, "r" );
+
+    pair_read_header( pf.fp, &( pf.hdr ) );
+
+    return pf;
+}
+
+static inline size_t
+pf_read_sep( const PAIR_FILE * pf, PAIR_SEP * sep, const size_t nitems )
+{
+    size_t nread;
+    if( pf->hdr.pair_format != PAIR_DATA_SEP ) {
+        fprintf( stderr, "ERROR: pair data format not PAIR_SEP!\n" );
+        exit( 1 );
+    }
+
+    nread = pair_read_data( pf->fp, sep, pf->hdr, nitems );
+
+    return nread;
+}
+
+void
+pf_cleanup( PAIR_FILE * pf )
+{
+    fclose( pf->fp );
+    pf->fp = NULL;
+    pf->fn = NULL;
 }
 
 #endif

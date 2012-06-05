@@ -1,3 +1,11 @@
+/* This program aims to translate a pre-computed list of
+ * interesting pairs (in FITS format) to a different format
+ * that is more efficient to manipulate
+ *
+ * Cameron K. McBride
+ * cameron.mcbride@gmail.com
+ * May 2012
+ */
 #include <string.h>
 #include <stdio.h>
 #include <fitsio.h>
@@ -9,30 +17,19 @@ int
 main( int argc, char *argv[] )
 {
     char *fits_filename;
-
     char *pairs_filename;
-
     fitsfile *fptr;             /* FITS file pointer, defined in fitsio.h */
-
     int status = 0;             /*  CFITSIO status value MUST be initialized to zero!  */
-
     int hdunum, hdutype, ncols;
-
     long nrows;
 
     if( argc != 3 ) {
         printf( "Usage:  translate_pairs filename[ext][col filter][row filter] output.pairs\n" );
         printf( "\n" );
-        printf( "Collect pairs (bin them) from FITS table \n" );
+        printf( "Translate pairs from FITS table to C binary format\n" );
         printf( "\n" );
         printf( "Examples: \n" );
-        printf( "  translate_pairs tab.fits[GTI]           - list the GTI extension\n" );
-        printf( "  translate_pairs tab.fits[1][#row < 101] - list first 100 rows\n" );
-        printf( "  translate_pairs tab.fits[1][col X;Y]    - list X and Y cols only\n" );
-        printf( "  translate_pairs tab.fits[1][col -PI]    - list all but the PI col\n" );
-        printf( "  translate_pairs tab.fits[1][col -PI][#row < 101]  - combined case\n" );
-        printf( "\n" );
-        printf( "Display formats can be modified with the TDISPn keywords.\n" );
+        printf( "  translate_pairs tab.fits[1][#row < 101] out.pairs - list first 100 rows\n" );
         return ( 0 );
     }
 
@@ -52,24 +49,17 @@ main( int argc, char *argv[] )
         if( hdutype == IMAGE_HDU ) {
             printf( "Error: this program only displays tables, not images\n" );
         } else {
+
             double dnull = -1000.0;
-
             double sep = dnull;
-
             double min = 1e100, max = 0.0;
-
             LONGLONG i;
-
             LONGLONG llnull;
-
             LONGLONG id1, id2;
-
             FILE *fpout;
-
             size_t nkeep;
 
             PAIR_HEADER pair_hdr;
-
             PAIR_SEP pair;
 
             fits_get_num_rows( fptr, &nrows, &status );
@@ -82,6 +72,7 @@ main( int argc, char *argv[] )
             fpout = ( FILE * ) check_fopen( pairs_filename, "w" );
 
             pair_header_init( &pair_hdr, PAIR_DATA_SEP );
+            pair_hdr.nrows = nrows;
 
             pair_write_header( fpout, &pair_hdr );
 
@@ -103,21 +94,23 @@ main( int argc, char *argv[] )
 
                 /* we iterate one at a time */
                 pair_write_data( fpout, &pair, pair_hdr, 1 );
+                nkeep += 1;
 
                 if( sep < min )
                     min = sep;
                 else if( sep > max )
                     max = sep;
 
-                nkeep += 1;
             }
 
             printf( "read through %zd separations: min,max = %lf , %lf\n", ( ssize_t ) i, min,
                     max );
 
             /* update header with the correct number of rows, and close file */
-            pair_hdr.nrows = nkeep;
-            pair_write_header( fpout, &pair_hdr );
+            if( nkeep != pair_hdr.nrows ) {
+                pair_hdr.nrows = nkeep;
+                pair_write_header( fpout, &pair_hdr );
+            }
             fclose( fpout );
         }
     }
