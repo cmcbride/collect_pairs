@@ -138,7 +138,7 @@ void
 bins_add_pair_weight( const BINS * b, const double w, ... )
 {
     int i, k, n = 0, nd;
-    double v;
+    double v = -1.0;
     va_list ap;
 
     nd = b->ndims - 1;
@@ -154,9 +154,10 @@ bins_add_pair_weight( const BINS * b, const double w, ... )
             n = n * b->nbins[nd - i] + k;
         }
     }
+
     va_end( ap );
     assert( n < b->nelem );     /* sanity check */
-    if( n > 0 ) {
+    if( n >= 0 ) {
         b->wc[n] += w;
         b->rc[n] += 1;
     }
