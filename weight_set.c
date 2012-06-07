@@ -8,7 +8,7 @@
 #define MAXCHAR 1024
 
 typedef struct {
-    int n;                      /* number of implied objects */
+    int n, njack;               /* number of implied objects */
     double wt;                  /* weight total */
     float *w;                   /* weight itself */
     long int *jack_id;          /* jacknife_id per galaxy */
@@ -23,6 +23,17 @@ ws_get_weight( WEIGHT_SET * ws, const int i )
     if( i >= ws->n )
         return 0.0;
     return ( double )ws->w[i];
+}
+
+static inline long int
+ws_get_jackid( WEIGHT_SET * ws, const int i )
+{
+    /* since things are stored in ID order, the thing we have to
+     * logically handle is when the ID is past the array length.
+     * */
+    if( i >= ws->n )
+        return 0.0;
+    return ( long int )ws->jack_id[i];
 }
 
 void
@@ -49,7 +60,7 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
     int check;
 
     long int id_max = 0;
-    long int id, id_jack;
+    long int id, id_jack, id_jack_max = -1;
     float weight;
 
     long int *jid;
@@ -79,6 +90,8 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
             case 2:
                 id_jack = 0;
                 break;
+            case 3:
+                break;
             default:
                 fprintf( stderr, "\nError reading line %zu of file: %s\n", nread, file );
                 exit( 1 );
@@ -89,8 +102,10 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
         w = ( float * )sa_data( saw );
         jid = ( long int * )sa_data( saj );
 
-        if( id > id_max )
+        if( id_max < id )
             id_max = id;
+        if( id_jack_max < id_jack )
+            id_jack_max = id_jack;
 
         w[id] = weight;
         jid[id] = id_jack;
@@ -107,6 +122,25 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
     ws->w = ( float * )sa_data( saw );
     ws->jack_id = ( long int * )sa_data( saj );
     ws->n = id_max + 1;
+    ws->njack = id_jack_max + 1;
 
-    return id_max;
+    return ( ws->njack );       /* number of jackknife samples */
+}
+
+double *
+ws_weight_total_jack( WEIGHT_SET * ws )
+{
+    int i;
+    double *wtj;
+    if( ws->njack <= 1 )
+        return &( ws->wt );
+
+    wtj = check_alloc( ws->njack, sizeof( double ) );
+
+    for( i = 0; i < ws->n; i++ ) {
+        long int j = ws->jack_id[i];
+        wtj[j] += ( double )ws->w[i];
+    }
+
+    return wtj;                 /* this needs to be free()'d later! */
 }

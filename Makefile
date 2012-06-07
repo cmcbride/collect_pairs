@@ -4,9 +4,12 @@ CFLAGS= -Wall -Winline -O3 -lm
 # CFLAGS= -Wall -lm -g 
 CC=gcc
 
-all: bin_pairs_proj bin_pairs_sep translate_pairs_proj translate_pairs_sep
+all: bin_pairs_proj bin_pairs_proj_jack translate_pairs_proj 
 
 bin_pairs_proj: bin_pairs_proj.c 
+	$(CC) $(CFLAGS) -o $@ $^
+
+bin_pairs_proj_jack: bin_pairs_proj_jack.c 
 	$(CC) $(CFLAGS) -o $@ $^
 
 bin_pairs_sep: bin_pairs_sep.c 
@@ -40,4 +43,4 @@ clean:
 	rm -f *.o *~
 
 real-clean: 
-	rm -f *.o  rm -f bin_pairs_proj bin_pairs_sep create_pairs translate_pairs_proj translate_pairs_sep  collect collect2 pairs_read_header 
+	rm -f *.o  rm -f bin_pairs_proj bin_pairs_proj_jack bin_pairs_sep create_pairs_proj create_pairs_sep translate_pairs_proj translate_pairs_sep  collect collect2 pairs_read_header 
