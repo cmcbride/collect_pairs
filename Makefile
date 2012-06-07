@@ -21,12 +21,6 @@ create_pairs_proj: create_pairs_proj.c
 create_pairs_sep: create_pairs_sep.c 
 	$(CC) $(CFLAGS) -o $@ $^
 
-collect: collect.c
-	$(CC) $(CFLAGS) -o $@ $^
-
-collect2: collect2.c
-	$(CC) $(CFLAGS) -o $@ $^
-
 pairs_read_header: pairs_read_header.c
 	$(CC) $(CFLAGS) $(CFITSIO) -o $@ $^
 
@@ -43,4 +37,4 @@ clean:
 	rm -f *.o *~
 
 real-clean: 
-	rm -f *.o  rm -f bin_pairs_proj bin_pairs_proj_jack bin_pairs_sep create_pairs_proj create_pairs_sep translate_pairs_proj translate_pairs_sep  collect collect2 pairs_read_header 
+	rm -f *.o  rm -f bin_pairs_proj bin_pairs_proj_jack bin_pairs_sep create_pairs_proj create_pairs_sep translate_pairs_proj translate_pairs_sep pairs_read_header 
