@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
+#include <float.h>
 #include "check_alloc.c"
 
 #define CLEAN(array) do {\
@@ -96,12 +97,12 @@ bins_init_dim( const BINS * b, const int idim, double min, double max, const int
 
     if( BINS_LINEAR == bin_type ) {
         b->delta[idim] = ( max - min ) / ( double )( b->nbins[idim] );
-        fprintf( stdout, "initialized LINEAR_BINS(dim=%d): %d bins between %g and %g, delta = %g\n",
-                 idim, b->nbins[idim], min, max, b->delta[idim] );
+//         fprintf( stdout, "initialized LINEAR_BINS(dim=%d): %d bins between %g and %g, delta = %g\n",
+//                  idim, b->nbins[idim], min, max, b->delta[idim] );
     } else if( BINS_LOG == bin_type ) {
         b->delta[idim] = ( log10( max / min ) ) / ( double )( b->nbins[idim] );
-        fprintf( stdout, "initialized LOG_BINS(dim=%d): %d bins between %g and %g, delta = %g\n",
-                 idim, b->nbins[idim], min, max, b->delta[idim] );
+//         fprintf( stdout, "initialized LOG_BINS(dim=%d): %d bins between %g and %g, delta = %g\n",
+//                  idim, b->nbins[idim], min, max, b->delta[idim] );
     } else {
         fprintf( stderr, "ERROR: unknown bin_type!\n" );
         exit( 1 );
@@ -163,9 +164,10 @@ bins_add_pair_weight( const BINS * b, const double w, ... )
             n = n * b->nbins[nd - i] + k;
         }
     }
-
     va_end( ap );
+
     assert( n < b->nelem );     /* sanity check */
+
     if( n >= 0 ) {
         b->wc[n] += w;
         b->rc[n] += 1;
@@ -195,7 +197,13 @@ bins_bin_minmax( const BINS * b, const int idim, const int ibin, double *min, do
         *max = ( ibin + 1 ) * del + bmin;
     }
 
-    assert( *max <= b->max[idim] );
+    if( *max > b->max[idim] ) {
+        double diff = ( *max - b->max[idim] );
+        if( diff > FLT_EPSILON )
+            fprintf( stderr,
+                     "WARNING: %g > %g (diff = %g) for idim = %d, ibin = %d)\n : FILE = %s ; LINE = %d",
+                     *max, b->max[idim], diff, idim, ibin, __FILE__, __LINE__ );
+    }
 }
 
 static inline double
@@ -224,17 +232,17 @@ bins_dim_minmax_bin( const BINS * b, const int n, const int idim, double *min, d
     int i, *nb;
     int r, ibin;
 
-    r = n;                      /* basically, index of b->nelem */
-
-    nb = b->nbins;
-
     assert( idim < b->ndims );
 
-    for( i = 0; i <= idim; i++ ) {
-        ibin = n % nb[i];
+    r = n;                      /* basically, index of b->nelem */
+    ibin = 0;
+    nb = b->nbins;
+
+    for( i = ( b->ndims - 1 ); i >= idim; i-- ) {
+        ibin = ( r % nb[i] );
         r = ( r - ibin ) / nb[i];
     }
-
+//     fprintf(stderr, "n=%d idim=%d, ibin=%d\n", n, idim, ibin);
     bins_bin_minmax( b, idim, ibin, min, max );
 }
 
@@ -248,7 +256,7 @@ bins_fprint( const BINS * b, FILE * fp )
         fprintf( fp, "%15e %15zu  ", b->wc[i], b->rc[i] );
         for( k = 0; k < b->ndims; k++ ) {
             bins_dim_minmax_bin( b, i, k, &min, &max );
-            fprintf( fp, "  %6.3g,%-6.3g", min, max );
+            fprintf( fp, "  %8.5g,%-8.5g", min, max );
         }
         fprintf( fp, "\n" );
     }

@@ -33,13 +33,16 @@ main( int argc, char *argv[] )
     fprintf( stderr, "Reading weight file: %s\n", w2_file );
     ws_read_ascii( &ws2, w2_file );
 
-    bins = bins_alloc( 2, 20, 20 );     /* two dimensions: rp, pi */
-    bins_init_dim( &bins, 0, 0.1, 50.0, BINS_LOG );     /* rp */
-    bins_init_dim( &bins, 1, 0.0, 100.0, BINS_LINEAR ); /* pi */
-//     bins = bins_alloc(2, 10, 10); /* two dimensions: rp, pi */
+    fprintf( stderr, "Initializing bins...\n" );
+    bins = bins_alloc( 2, 21, 14 );     /* two dimensions: rp, pi */
+    bins_init_dim( &bins, 0, 0.1, 42.17, BINS_LOG );    /* rp */
+    bins_init_dim( &bins, 1, 0.0, 70.0, BINS_LINEAR );  /* pi */
+//     bins = bins_alloc( 2, 20, 20 );     /* two dimensions: rp, pi */
+//     bins_init_dim( &bins, 0, 0.1, 50.0, BINS_LOG );     /* rp */
+//     bins_init_dim( &bins, 1, 0.0, 100.0, BINS_LINEAR ); /* pi */
+//     bins = bins_alloc( 2, 2, 2); /* two dimensions: rp, pi */
 //     bins_init_dim( &bins, 0, 0,  10.0, BINS_LINEAR ); /* rp */
 //     bins_init_dim( &bins, 1, 0,  10.0, BINS_LINEAR ); /* pi */
-    fprintf( stderr, "Initialized bins...\n" );
 
     for( nfiles = 0; iarg < argc; iarg++ ) {
         int i;
@@ -48,7 +51,7 @@ main( int argc, char *argv[] )
         PAIR_PROJ ps[nread];
 
         pair_file = argv[iarg];
-        fprintf( stderr, "  .. processing pairs in %s\n", pair_file );
+        fprintf( stderr, "Processing pairs in %s\n", pair_file );
 
         pf = pf_open_read( pair_file );
         nfiles += 1;
