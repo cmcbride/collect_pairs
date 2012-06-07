@@ -85,16 +85,23 @@ bins_init_dim( const BINS * b, const int idim, double min, double max, const int
         max = tmp;
     }
 
+    if( BINS_LOG == bin_type && min <= 0.0 ) {
+        fprintf( stderr, "ERROR: log bins undefined for min = %lf\n!", min );
+        exit( 1 );
+    }
+
     b->min[idim] = min;
     b->max[idim] = max;
     b->bin_type[idim] = bin_type;
 
     if( BINS_LINEAR == bin_type ) {
         b->delta[idim] = ( max - min ) / ( double )( b->nbins[idim] );
+        fprintf( stdout, "initialized LINEAR_BINS(dim=%d): %d bins between %g and %g, delta = %g\n",
+                 idim, b->nbins[idim], min, max, b->delta[idim] );
     } else if( BINS_LOG == bin_type ) {
         b->delta[idim] = ( log10( max / min ) ) / ( double )( b->nbins[idim] );
-        fprintf( stdout, "LOG_BINS: %d bins between %g and %g, delta = %g\n",
-                 b->nbins[idim], min, max, b->delta[idim] );
+        fprintf( stdout, "initialized LOG_BINS(dim=%d): %d bins between %g and %g, delta = %g\n",
+                 idim, b->nbins[idim], min, max, b->delta[idim] );
     } else {
         fprintf( stderr, "ERROR: unknown bin_type!\n" );
         exit( 1 );

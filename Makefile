@@ -12,7 +12,10 @@ bin_pairs_proj: bin_pairs_proj.c
 bin_pairs_sep: bin_pairs_sep.c 
 	$(CC) $(CFLAGS) -o $@ $^
 
-create_pairs: create_pairs.c 
+create_pairs_proj: create_pairs_proj.c 
+	$(CC) $(CFLAGS) -o $@ $^
+
+create_pairs_sep: create_pairs_sep.c 
 	$(CC) $(CFLAGS) -o $@ $^
 
 collect: collect.c
@@ -37,4 +40,4 @@ clean:
 	rm -f *.o *~
 
 real-clean: 
-	rm -f *.o  rm -f bin_pairs create_pairs translate_pairs collect collect2 pairs_read_header 
+	rm -f *.o  rm -f bin_pairs_proj bin_pairs_sep create_pairs translate_pairs_proj translate_pairs_sep  collect collect2 pairs_read_header 

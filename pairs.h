@@ -12,6 +12,8 @@
 #include <stdint.h>
 #include <inttypes.h>
 #include <stdio.h>
+#include <assert.h>
+
 #include "check_fopen.c"
 
 #define PAIR_HEADER_SIZE 256
@@ -170,10 +172,24 @@ pf_read_sep( const PAIR_FILE * pf, PAIR_SEP * sep, const size_t nitems )
     size_t nread;
     if( pf->hdr.pair_format != PAIR_DATA_SEP ) {
         fprintf( stderr, "ERROR: pair data format not PAIR_SEP!\n" );
-        exit( 1 );
+        assert( pf->hdr.pair_format != PAIR_DATA_SEP );
     }
 
     nread = pair_read_data( pf->fp, sep, pf->hdr, nitems );
+
+    return nread;
+}
+
+static inline size_t
+pf_read_proj( const PAIR_FILE * pf, PAIR_PROJ * pair, const size_t nitems )
+{
+    size_t nread;
+    if( pf->hdr.pair_format != PAIR_DATA_PROJ ) {
+        fprintf( stderr, "ERROR: pair data format not PAIR_PROJ!\n" );
+        assert( pf->hdr.pair_format != PAIR_DATA_PROJ );
+    }
+
+    nread = pair_read_data( pf->fp, pair, pf->hdr, nitems );
 
     return nread;
 }

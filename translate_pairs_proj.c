@@ -54,8 +54,8 @@ main( int argc, char *argv[] )
             LONGLONG llnull;
             LONGLONG id1, id2;
 
-            LONGLONG id1_min=-1, id1_max=-1;
-            LONGLONG id2_min=-1, id2_max=-1;
+            LONGLONG id1_min = -1, id1_max = -1;
+            LONGLONG id2_min = -1, id2_max = -1;
             FILE *fpout;
             size_t nkeep;
 
@@ -69,8 +69,7 @@ main( int argc, char *argv[] )
 
             printf( "writing to new pairs file:\n -> %s\n", pairs_filename );
             printf( "filtering pairs, keeping:\n"
-                    "    rp <=  %g\n"
-                    "    pi <=  %g\n", RP_MAX, PI_MAX);
+                    "    rp <=  %g\n" "    pi <=  %g\n", RP_MAX, PI_MAX );
             /* we can now create pair structure, and open the file */
             fpout = ( FILE * ) check_fopen( pairs_filename, "w" );
 
@@ -79,30 +78,34 @@ main( int argc, char *argv[] )
 
             pair_write_header( fpout, &pair_hdr );
 
-            printf("Processing FITS file...\n");
+            printf( "Processing FITS file...\n" );
             nkeep = 0;
             for( i = 1; i <= nrows; i++ ) {
                 int anynull = 0;
 
                 fits_read_col( fptr, TLONGLONG, 1, i, 1, 1, &llnull, &id1, &anynull, &status );
                 fits_read_col( fptr, TLONGLONG, 2, i, 1, 1, &llnull, &id2, &anynull, &status );
-                if(i == 1) {
+                if( i == 1 ) {
                     id1_min = id1;
                     id1_max = id1;
                     id2_min = id2;
                     id2_max = id2;
                 } else {
-                    if( id1 < id1_min ) id1_min = id1;
-                    if( id2 < id2_min ) id2_min = id2;
-                    if( id1 > id1_max ) id1_max = id1;
-                    if( id2 > id2_max ) id2_max = id2;
+                    if( id1 < id1_min )
+                        id1_min = id1;
+                    if( id2 < id2_min )
+                        id2_min = id2;
+                    if( id1 > id1_max )
+                        id1_max = id1;
+                    if( id2 > id2_max )
+                        id2_max = id2;
                 }
 
                 if( status ) {
                     fits_report_error( stderr, status );        /* print any error message */
                     break;      /* jump out of loop on error */
                 }
-                fits_read_col( fptr, TDOUBLE,  9, i, 1, 1, &dnull, &rp, &anynull, &status );
+                fits_read_col( fptr, TDOUBLE, 9, i, 1, 1, &dnull, &rp, &anynull, &status );
                 fits_read_col( fptr, TDOUBLE, 10, i, 1, 1, &dnull, &pi, &anynull, &status );
 
                 /* EDIT: filter anything here */
@@ -126,9 +129,7 @@ main( int argc, char *argv[] )
             }
             printf( "ID check:\n"
                     "    id1: %lld to %lld \n"
-                    "    id2: %lld to %lld \n",
-                    id1_min, id1_max,
-                    id2_min, id2_max );
+                    "    id2: %lld to %lld \n", id1_min, id1_max, id2_min, id2_max );
 
             printf( "read through %zd pairs, kept %zd of them\n", ( ssize_t ) i, nkeep );
 
