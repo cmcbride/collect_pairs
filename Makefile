@@ -4,9 +4,12 @@ CFLAGS= -Wall -Winline -O3 -lm
 # CFLAGS= -Wall -lm -g 
 CC=gcc
 
-all: translate_pairs bin_pairs
+all: bin_pairs_proj bin_pairs_sep translate_pairs_proj translate_pairs_sep
 
-bin_pairs: bin_pairs.c 
+bin_pairs_proj: bin_pairs_proj.c 
+	$(CC) $(CFLAGS) -o $@ $^
+
+bin_pairs_sep: bin_pairs_sep.c 
 	$(CC) $(CFLAGS) -o $@ $^
 
 create_pairs: create_pairs.c 
@@ -21,7 +24,10 @@ collect2: collect2.c
 pairs_read_header: pairs_read_header.c
 	$(CC) $(CFLAGS) $(CFITSIO) -o $@ $^
 
-translate_pairs: translate_pairs.c 
+translate_pairs_proj: translate_pairs_proj.c 
+	$(CC) $(CFLAGS) $(CFITSIO) -o $@ $^
+
+translate_pairs_sep: translate_pairs_sep.c 
 	$(CC) $(CFLAGS) $(CFITSIO) -o $@ $^
 
 indent: 
