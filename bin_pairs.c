@@ -33,7 +33,7 @@ main( int argc, char *argv[] )
     fprintf( stderr, "Reading weight file: %s\n", w2_file );
     ws_read_ascii( &ws2, w2_file );
 
-    bins = bins_init_one( 0.0, 100.0, 20, BINS_LINEAR );
+    bins = bins_init_one( 0.1, 100.0, 20, BINS_LOG );
     fprintf( stderr, "Initialized bins...\n" );
 
     for( nfiles = 0; iarg < argc; iarg++ ) {

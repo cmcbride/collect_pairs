@@ -92,7 +92,9 @@ bins_init_dim( const BINS * b, const int idim, double min, double max, const int
     if( BINS_LINEAR == bin_type ) {
         b->delta[idim] = ( max - min ) / ( double )( b->nbins[idim] );
     } else if( BINS_LOG == bin_type ) {
-        b->delta[idim] = ( log10( max ) - log10( min ) ) / ( double )( b->nbins[idim] );
+        b->delta[idim] = ( log10( max / min ) ) / ( double )( b->nbins[idim] );
+        fprintf( stdout, "LOG_BINS: %d bins between %g and %g, delta = %g\n",
+                 b->nbins[idim], min, max, b->delta[idim] );
     } else {
         fprintf( stderr, "ERROR: unknown bin_type!\n" );
         exit( 1 );
@@ -178,8 +180,13 @@ bins_bin_minmax( const BINS * b, const int idim, const int ibin, double *min, do
     double bmin = b->min[idim];
     double del = b->delta[idim];
 
-    *min = ibin * del + bmin;
-    *max = ( ibin + 1 ) * del + bmin;
+    if( BINS_LOG == b->bin_type[idim] ) {
+        *min = pow( 10, ( ibin * del ) ) * bmin;
+        *max = pow( 10, ( ibin + 1 ) * del ) * bmin;
+    } else {
+        *min = ibin * del + bmin;
+        *max = ( ibin + 1 ) * del + bmin;
+    }
 
     assert( *max <= b->max[idim] );
 }
@@ -228,13 +235,13 @@ static inline int
 bins_fprint( const BINS * b, FILE * fp )
 {
     int i, k;
-    double min, max;
+    double min = 0.0, max = 0.0;
     fprintf( fp, "# %13s %15s    matcher\n", "norm_count", "raw_count" );
     for( i = 0; i < b->nelem; i++ ) {
         fprintf( fp, "%15e %15zu  ", b->wc[i], b->rc[i] );
         for( k = 0; k < b->ndims; k++ ) {
             bins_dim_minmax_bin( b, i, k, &min, &max );
-            fprintf( fp, "  %6g,%-6g", min, max );
+            fprintf( fp, "  %6.3g,%-6.3g", min, max );
         }
         fprintf( fp, "\n" );
     }
