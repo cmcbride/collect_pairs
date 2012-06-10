@@ -48,7 +48,7 @@ main( int argc, char *argv[] )
 //         bins_init_dim( &bins[j], 0, 0,  10.0, BINS_LINEAR ); /* rp */
 //         bins_init_dim( &bins[j], 1, 0,  10.0, BINS_LINEAR ); /* pi */
 
-        bins[j] = bins_alloc( 2, 21, 14 );      /* two dimensions: rp, pi */
+        bins[j] = bins_alloc( 2, 21, 7 );       /* two dimensions: rp, pi */
         bins_init_dim( &bins[j], 0, 0.1, 42.17, BINS_LOG );     /* rp */
         bins_init_dim( &bins[j], 1, 0.0, 70.00, BINS_LINEAR );  /* pi */
     }

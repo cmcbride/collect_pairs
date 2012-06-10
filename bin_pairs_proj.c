@@ -34,16 +34,17 @@ main( int argc, char *argv[] )
     ws_read_ascii( &ws2, w2_file );
 
     fprintf( stderr, "Initializing bins...\n" );
-    bins = bins_alloc( 2, 21, 14 );     /* two dimensions: rp, pi */
+    bins = bins_alloc( 2, 21, 7 );      /* two dimensions: rp, pi */
     bins_init_dim( &bins, 0, 0.1, 42.17, BINS_LOG );    /* rp */
     bins_init_dim( &bins, 1, 0.0, 70.0, BINS_LINEAR );  /* pi */
-//     bins = bins_alloc( 2, 20, 20 );     /* two dimensions: rp, pi */
-//     bins_init_dim( &bins, 0, 0.1, 50.0, BINS_LOG );     /* rp */
-//     bins_init_dim( &bins, 1, 0.0, 100.0, BINS_LINEAR ); /* pi */
-//     bins = bins_alloc( 2, 2, 2); /* two dimensions: rp, pi */
-//     bins_init_dim( &bins, 0, 0,  10.0, BINS_LINEAR ); /* rp */
-//     bins_init_dim( &bins, 1, 0,  10.0, BINS_LINEAR ); /* pi */
+//     bins = bins_alloc( 2, 1, 1 );     /* two dimensions: rp, pi */
+//     bins_init_dim( &bins, 0, 0.0, 60.0, BINS_LINEAR );     /* rp */
+//     bins_init_dim( &bins, 1, 0.0, 110.0, BINS_LINEAR ); /* pi */
+//     bins = bins_alloc( 2, 4, 5); /* two dimensions: rp, pi */
+//     bins_init_dim( &bins, 0, 0,  40.0, BINS_LINEAR ); /* rp */
+//     bins_init_dim( &bins, 1, 0,  40.0, BINS_LINEAR ); /* pi */
 
+    pair_count = 0;
     for( nfiles = 0; iarg < argc; iarg++ ) {
         int i;
         size_t nread = 10000;
@@ -56,12 +57,11 @@ main( int argc, char *argv[] )
         pf = pf_open_read( pair_file );
         nfiles += 1;
 
-        pair_count = 0;
         while( pair_count < pf_nrows( &pf ) ) {
             nread = pf_read_proj( &pf, ps, nread );
-            pair_count += nread;
 
             for( i = 0; i < nread; i++ ) {
+                pair_count += 1;
                 int i1 = ps[i].id1;
                 int i2 = ps[i].id2;
 
@@ -72,6 +72,12 @@ main( int argc, char *argv[] )
 
                 /* now bin pairs */
                 bins_add_pair_weight( &bins, w, ps[i].rp, ps[i].pi );
+//                 if(pair_count > bins.rc[0]) {
+//                     fprintf( stderr, "counts diverged at %zd > %zd: (%d,%d) %g,%g\n",
+//                              pair_count, bins.rc[0], i1, i2, ps[i].rp, ps[i].pi);
+//                     exit(EXIT_FAILURE);
+//                 }
+
             }
         }
 
