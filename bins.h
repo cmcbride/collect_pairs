@@ -153,10 +153,12 @@ bins_add_pair_weight( const BINS * b, const double w, ... )
 
     nd = b->ndims - 1;
 
+//     fprintf(stderr, " binning [ ");
     va_start( ap, w );
     for( i = nd; i >= 0; i-- ) {
         v = va_arg( ap, double );
         k = bins_check_dim( b, nd - i, v );
+//         fprintf(stderr, " %g (%d) ", v, k);
         if( k < 0 ) {
             n = -1;
             break;
@@ -165,10 +167,10 @@ bins_add_pair_weight( const BINS * b, const double w, ... )
         }
     }
     va_end( ap );
-
-    assert( n < b->nelem );     /* sanity check */
+//     fprintf(stderr, "] n = %d\n", n);
 
     if( n >= 0 ) {
+        assert( n < b->nelem ); /* sanity check */
         b->wc[n] += w;
         b->rc[n] += 1;
     }
@@ -251,9 +253,9 @@ bins_fprint( const BINS * b, FILE * fp )
 {
     int i, k;
     double min = 0.0, max = 0.0;
-    fprintf( fp, "# %13s %15s    matcher\n", "norm_count", "raw_count" );
+    fprintf( fp, "# %13s %15s    matcher\n", "raw_count", "norm_count" );
     for( i = 0; i < b->nelem; i++ ) {
-        fprintf( fp, "%15e %15zu  ", b->wc[i], b->rc[i] );
+        fprintf( fp, "%15zu %15e  ", b->rc[i], b->wc[i] );
         for( k = 0; k < b->ndims; k++ ) {
             bins_dim_minmax_bin( b, i, k, &min, &max );
             fprintf( fp, "  %8.5g,%-8.5g", min, max );
