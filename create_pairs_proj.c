@@ -9,9 +9,11 @@ main( int argc, char *argv[] )
 {
     int i, k;
     char *pairs_filename;
-    long nrows, size;
     FILE *fpout;
     size_t nkeep;
+    long nrows, size = 5;
+    float rp[5] = { 0.5, 1.5, 3.0, 10.0, 100.0 };
+    float pi[5] = { 1.0, 10.0, 30.0, 30.0, 100.0 };
 
     PAIR_HEADER pair_hdr;
     PAIR_PROJ pair;
@@ -21,7 +23,6 @@ main( int argc, char *argv[] )
         return ( 0 );
     }
 
-    size = 10;
     nrows = size * size;
 
     pairs_filename = argv[1];
@@ -37,10 +38,12 @@ main( int argc, char *argv[] )
     nkeep = 0;
     for( i = 1; i <= size; i++ ) {
         pair.id1 = ( int64_t ) i;
-        pair.rp = ( i - 1 ) + 0.5;
+//         pair.rp = ( i - 1 ) + 0.5;
+        pair.rp = rp[i - 1];
         for( k = 1; k <= size; k++ ) {
             pair.id2 = ( int64_t ) k;
-            pair.pi = ( k - 1 ) + 0.5;
+//             pair.pi = ( k - 1 ) + 0.5;
+            pair.pi = pi[k - 1];
 
             /* we iterate one at a time */
             pair_write_data( fpout, &pair, pair_hdr, 1 );
