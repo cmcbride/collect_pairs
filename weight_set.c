@@ -75,8 +75,6 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
     }
     saw = sa_init( N_START, sizeof( float ) );
     saj = sa_init( N_START, sizeof( long int ) );
-    ws->wt = 0.0;
-    ws->n = 0;
     do {
         nread++;
         if( line[0] == '#' )
@@ -109,11 +107,17 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
 
         w[id] = weight;
         jid[id] = id_jack;
-        ws->wt += ( double )weight;
 
     } while( fgets( line, MAXCHAR, fp ) != NULL );
 
     fclose( fp );
+    ws->wt = 0.0;
+    ws->n = 0;
+
+    for( i = 0; i <= id_max; i++ ) {
+        ws->wt += ( double )weight;
+        ws->n += 1;
+    }
 
     /* we _cannot_ deallocate arrays, they are returned in a WEIGHT_SET */
     sa_set_length( &saw, id_max + 1 );
