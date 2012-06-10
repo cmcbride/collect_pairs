@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <fitsio.h>
 
-#include "pairs.h"
-#include "check_fopen.c"
+#include <pairs.h>
+#include <check_fopen.c>
 
 /* edit the following to filter pairs */
 

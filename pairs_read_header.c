@@ -2,8 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "pairs.h"
-#include "check_fopen.c"
+#include <pairs.h>
+#include <check_fopen.c>
 
 int
 main( int argc, char *argv[] )

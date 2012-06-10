@@ -3,9 +3,10 @@
 #define WEIGHT_SET_DEFINED 1
 
 #include <stdio.h>
-#include "check_alloc.c"
-#include "check_fopen.c"
-#include "simple_array.c"
+
+#include <check_alloc.c>
+#include <check_fopen.c>
+#include <simple_array.c>
 
 #define N_START 100000
 #define MAXCHAR 1024

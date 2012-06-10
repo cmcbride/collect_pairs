@@ -5,7 +5,8 @@
 #include <math.h>
 #include <assert.h>
 #include <float.h>
-#include "check_alloc.c"
+
+#include <check_alloc.c>
 
 #define CLEAN(array) do {\
     if(array != NULL) {\

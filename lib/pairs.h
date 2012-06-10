@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include "check_fopen.c"
+#include <check_fopen.c>
 
 #define PAIR_HEADER_SIZE 256
 #define PAIR_MAGIC ((uint64_t)0x1234567802020202ll)

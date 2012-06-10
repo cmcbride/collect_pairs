@@ -1,6 +1,6 @@
 
 CFITSIO= -lcfitsio 
-CFLAGS= -Wall -Winline -O3 -lm 
+CFLAGS= -O3 -Wall -Winline -I./lib -lm 
 # CFLAGS= -Wall -lm -g 
 CC=gcc
 
