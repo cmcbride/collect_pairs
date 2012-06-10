@@ -21,6 +21,9 @@ create_pairs_proj: create_pairs_proj.c
 create_pairs_sep: create_pairs_sep.c 
 	$(CC) $(CFLAGS) -o $@ $^
 
+dump_pairs_proj: create_pairs_proj.c 
+	$(CC) $(CFLAGS) -o $@ $^
+
 pairs_read_header: pairs_read_header.c
 	$(CC) $(CFLAGS) $(CFITSIO) -o $@ $^
 
