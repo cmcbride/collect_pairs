@@ -1,3 +1,6 @@
+#pragma once
+#ifndef WEIGHT_SET_DEFINED
+#define WEIGHT_SET_DEFINED 1
 
 #include <stdio.h>
 #include "check_alloc.c"
@@ -114,9 +117,12 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
     ws->wt = 0.0;
     ws->n = 0;
 
-    for( i = 0; i <= id_max; i++ ) {
-        ws->wt += ( double )weight;
-        ws->n += 1;
+    {
+        size_t i;
+        for( i = 0; i <= id_max; i++ ) {
+            ws->wt += ( double )weight;
+            ws->n += 1;
+        }
     }
 
     /* we _cannot_ deallocate arrays, they are returned in a WEIGHT_SET */
@@ -148,3 +154,5 @@ ws_weight_total_jack( WEIGHT_SET * ws )
 
     return wtj;                 /* this needs to be free()'d later! */
 }
+
+#endif

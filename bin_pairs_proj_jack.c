@@ -4,7 +4,7 @@
 
 #include "pairs.h"
 #include "bins.h"
-#include "weight_set.c"
+#include "weight_set.h"
 #include "check_fopen.c"
 #include "check_alloc.c"
 
