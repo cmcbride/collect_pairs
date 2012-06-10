@@ -103,7 +103,7 @@ main( int argc, char *argv[] )
 
             }
 
-            printf( "read through %zd separations: min,max = %lf , %lf\n", ( ssize_t ) i, min,
+            printf( "read through %zd separations: min,max = %lf , %lf\n", ( ssize_t ) nkeep, min,
                     max );
 
             /* update header with the correct number of rows, and close file */

@@ -10,6 +10,8 @@
 #define RP_MAX 50.0
 #define PI_MAX 100.0
 
+// #define VERBOSE
+
 int
 main( int argc, char *argv[] )
 {
@@ -107,6 +109,11 @@ main( int argc, char *argv[] )
                 }
                 fits_read_col( fptr, TDOUBLE, 9, i, 1, 1, &dnull, &rp, &anynull, &status );
                 fits_read_col( fptr, TDOUBLE, 10, i, 1, 1, &dnull, &pi, &anynull, &status );
+#ifdef VERBOSE
+                if( i < 20 ) {
+                    fprintf( stderr, "%lld,%-lld  %6.2f %6.2f\n", id1, id2, rp, pi );
+                }
+#endif
 
                 /* EDIT: filter anything here */
 
@@ -131,7 +138,7 @@ main( int argc, char *argv[] )
                     "    id1: %lld to %lld \n"
                     "    id2: %lld to %lld \n", id1_min, id1_max, id2_min, id2_max );
 
-            printf( "read through %zd pairs, kept %zd of them\n", ( ssize_t ) i, nkeep );
+            printf( "read through %zd pairs, kept %zd of them\n", ( ssize_t ) i - 1, nkeep );
 
             /* update header with the correct number of rows, and close file */
             if( nkeep != pair_hdr.nrows ) {
