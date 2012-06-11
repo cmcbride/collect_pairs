@@ -118,7 +118,7 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
     ws->wt = 0.0;
     ws->n = 0;
 
-    {
+    {                           /* do this *after* we read everything in */
         size_t i;
         for( i = 0; i <= id_max; i++ ) {
             ws->wt += ( double )weight;
@@ -149,8 +149,11 @@ ws_weight_total_jack( WEIGHT_SET * ws )
     wtj = check_alloc( ws->njack, sizeof( double ) );
 
     for( i = 0; i < ws->n; i++ ) {
-        long int j = ws->jack_id[i];
-        wtj[j] += ( double )ws->w[i];
+        long int k, j = ws->jack_id[i];
+        for( k = 0; k < ws->njack; k++ ) {
+            if( k != j )
+                wtj[k] += ( double )ws->w[i];
+        }
     }
 
     return wtj;                 /* this needs to be free()'d later! */
