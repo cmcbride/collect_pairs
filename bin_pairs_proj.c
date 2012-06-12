@@ -83,7 +83,8 @@ main( int argc, char *argv[] )
 
         pf_cleanup( &pf );
     }
-    fprintf( stderr, "DONE! Found %zu pairs in %d files\n", pair_count, nfiles );
+    fprintf( stderr, "DONE! Found %zu pairs in %d file%s\n",
+             pair_count, nfiles, nfiles > 1 ? "s" : "" );
     {
         /* post processing and output */
         FILE *fp;
