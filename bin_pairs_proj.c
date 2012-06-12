@@ -18,7 +18,7 @@ main( int argc, char *argv[] )
     PAIR_FILE pf;
 
     if( argc < 5 ) {
-        printf( "Usage:  %s OUTPUT_FILE  WEIGHT1  WEIGHT2  *PAIR_FILES\n", argv[0] );
+        printf( "Usage:  %s OUTPUT_BASE  WEIGHT1  WEIGHT2  *PAIR_FILES\n", argv[0] );
         return ( 0 );
     }
 
@@ -28,9 +28,9 @@ main( int argc, char *argv[] )
     iarg = 4;
 
     /* read in weights */
-    fprintf( stderr, "Reading weight file: %s\n", w1_file );
+    fprintf( stderr, "Reading weight1 file: %s\n", w1_file );
     ws_read_ascii( &ws1, w1_file );
-    fprintf( stderr, "Reading weight file: %s\n", w2_file );
+    fprintf( stderr, "Reading weight2 file: %s\n", w2_file );
     ws_read_ascii( &ws2, w2_file );
 
     fprintf( stderr, "Initializing bins...\n" );
@@ -90,14 +90,23 @@ main( int argc, char *argv[] )
         double norm = ( ws1.wt * ws2.wt );
 
         bins_normalize( &bins, norm );
-        fprintf( stderr, "Writing output: %s \n", out_file );
+        {
+            char *fn;
+            size_t len;
 
-        fp = check_fopen( out_file, "w" );
+            len = strlen( out_file ) + 40;
+            fn = ( char * )check_alloc( len, sizeof( char ) );
+            snprintf( fn, len, "%s.full.dat", out_file );
+
+            fprintf( stderr, "Writing output: %s \n", fn );
+            fp = check_fopen( fn, "w" );
+        }
+
         fprintf( fp, "# pair_file: %s\n", pair_file );
         fprintf( fp, "# w1_file:   %s\n", w1_file );
-        fprintf( fp, "# w1_total:  %.10g\n", ws1.wt );
+        fprintf( fp, "# w1_total:  %.10g (over %d objects)\n\n", ws1.wt, ws1.ct );
         fprintf( fp, "# w2_file:   %s\n", w2_file );
-        fprintf( fp, "# w2_total:  %.10g\n", ws2.wt );
+        fprintf( fp, "# w2_total:  %.10g (over %d objects)\n\n", ws2.wt, ws2.ct );
         bins_fprint( &bins, fp );
         fclose( fp );
     }
