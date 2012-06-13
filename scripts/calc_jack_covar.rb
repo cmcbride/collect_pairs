@@ -87,7 +87,7 @@ if $0 == __FILE__
   avg, sig, ncov = calc_errors(rs)
 
 
-  $stderr.puts "  -> #{out_avg}"
+  $stderr.puts " -> #{out_avg}"
   File.open(out_avg, "w") do |fout|
     fout.puts "# average over jackknife samples"
     fout.puts "# Njack = #{rs.size}"
@@ -102,7 +102,7 @@ if $0 == __FILE__
     end
   end
 
-  $stderr.puts "  -> #{out_err}"
+  $stderr.puts " -> #{out_err}"
   File.open(out_err, "w") do |fout|
     fout.puts "# diagonal errors from jackknife samples"
     fout.puts "# Njack = #{rs.size}"
@@ -111,7 +111,7 @@ if $0 == __FILE__
     end
   end
 
-  $stderr.puts "  -> #{out_cov}"
+  $stderr.puts " -> #{out_cov}"
   File.open(out_cov, "w") do |fout|
     fout.puts "# normalize covariance from jackknife samples "
     fout.puts "# Njack = #{rs.size}"
