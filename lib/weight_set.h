@@ -337,9 +337,14 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file, const int ncols )
     } while( fgets( line, MAXCHAR, fp ) != NULL );
 
     fclose( fp );
+
     /* now check if we've really populated the additional columns before 
      * saving them */
-    check = ncols_read - 3;
+    if( ncols_read < 3 )
+        check = 0;
+    else
+        check = ncols_read - 3;
+
     if( check < ws->ndata ) {
         int i;
         for( i = ws->ndata; i > check; i-- ) {
