@@ -125,6 +125,7 @@ main( int argc, char *argv[] )
 
                 fprintf( stderr, "Writing output: %s \n", fn );
                 fp = check_fopen( fn, "w" );
+                free( fn );
             }
             /* write output to ASCII file, with header info */
             fprintf( fp, "# pair_file: %s\n", pair_file );

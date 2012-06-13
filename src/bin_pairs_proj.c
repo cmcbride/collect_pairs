@@ -109,6 +109,7 @@ main( int argc, char *argv[] )
 
             fprintf( stderr, "Writing output: %s \n", fn );
             fp = check_fopen( fn, "w" );
+            free( fn );
         }
 
         fprintf( fp, "# pair_file: %s\n", pair_file );

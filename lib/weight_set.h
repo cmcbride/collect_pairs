@@ -364,6 +364,7 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file, const int ncols )
             ws->d[i] = ( float * )sa_data( &sa_d[i] );
         }
     }
+    free( sa_d );
 
     ws->w = ( float * )sa_data( &sa_w );
     ws->sid = ( long int * )sa_data( &sa_sid );
