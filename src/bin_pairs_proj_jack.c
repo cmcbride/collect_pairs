@@ -99,7 +99,7 @@ main( int argc, char *argv[] )
 
         pf_cleanup( &pf );
     }
-    fprintf( stderr, "DONE! Found %zu pairs in %d file%s\n",
+    fprintf( stderr, "Completed %zu pairs over %d file%s\n",
              pair_count, nfiles, nfiles > 1 ? "s" : "" );
     {
         double *wtj1, *wtj2;
@@ -141,7 +141,10 @@ main( int argc, char *argv[] )
         free( wtj1 );
         free( wtj2 );
     }
+    fprintf( stderr, "DONE!\n" );
+
     ws_clean( &ws1 );
     ws_clean( &ws2 );
+
     return ( 0 );
 }
