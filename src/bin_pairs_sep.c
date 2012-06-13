@@ -29,9 +29,9 @@ main( int argc, char *argv[] )
 
     /* read in weights */
     fprintf( stderr, "Reading weight file: %s\n", w1_file );
-    ws_read_ascii( &ws1, w1_file );
+    ws_read_ascii( &ws1, w1_file, 2 );
     fprintf( stderr, "Reading weight file: %s\n", w2_file );
-    ws_read_ascii( &ws2, w2_file );
+    ws_read_ascii( &ws2, w2_file, 2 );
 
     bins = bins_init_one( 0.1, 100.0, 20, BINS_LOG );
     fprintf( stderr, "Initialized bins...\n" );
@@ -89,7 +89,7 @@ main( int argc, char *argv[] )
     }
 
     bins_cleanup( &bins );
-    ws_cleaup( &ws1 );
-    ws_cleaup( &ws2 );
+    ws_clean( &ws1 );
+    ws_clean( &ws2 );
     return ( 0 );
 }
