@@ -8,16 +8,44 @@
 #include <check_fopen.c>
 #include <simple_array.c>
 
+#define CLEAN(array) do {\
+    if(array != NULL) {\
+        free( (array) );\
+        array = NULL;\
+    }\
+} while (0)
+
 #define N_START 100000
 #define MAXCHAR 1024
 
 typedef struct {
-    int nsize, njack;           /* number of objects */
+    int nsize;                  /* number of objects */
+    int nsamp;                  /* number of samples */
     int ct;                     /* total count of w > 0 objects */
     double wt;                  /* weight total */
     float *w;                   /* weight itself */
-    long int *jack_id;          /* jacknife_id per galaxy */
+    long int *sid;              /* sample ID per object (e.g. jackknife) */
+    float *mark;                /* mark pair for some later calculation */
+    float **d;                  /* placeholders for extra data */
 } WEIGHT_SET;
+
+static inline void
+ws_mark_init( WEIGHT_SET * ws )
+{
+    ws->mark = ( float * )check_alloc( ws->nsize, sizeof( float ) );
+}
+
+static inline void
+ws_mark_free( WEIGHT_SET * ws )
+{
+    CLEAN( ws->mark );
+}
+
+static inline void
+ws_mark_add( WEIGHT_SET * ws, const int i, float m )
+{
+    ws->mark[i] += m;
+}
 
 static inline double
 ws_get_weight( WEIGHT_SET * ws, const int i )
@@ -38,29 +66,26 @@ ws_get_jackid( WEIGHT_SET * ws, const int i )
      * */
     if( i >= ws->nsize )
         return 0;
-    return ( long int )ws->jack_id[i];
+    return ( long int )ws->sid[i];
 }
 
 static inline int
 ws_get_njack( WEIGHT_SET * ws )
 {
-    return ws->njack;
+    return ws->nsamp;
 }
 
 void
 ws_cleaup( WEIGHT_SET * ws )
 {
-    if( NULL != ws->w ) {
-        free( ws->w );
-        ws->w = NULL;
-    }
-    if( NULL != ws->jack_id ) {
-        free( ws->jack_id );
-        ws->jack_id = NULL;
-    }
+    CLEAN( ws->w );
+    CLEAN( ws->sid );
+    CLEAN( ws->mark );
+
     ws->wt = 0.0;
     ws->ct = 0;
     ws->nsize = 0;
+    ws->nsamp = 0;
 }
 
 int
@@ -72,13 +97,14 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
     size_t line_num = 0;
     int check, ncols_read = -1;
 
-    long int id_max = 0;
-    long int id, id_jack, id_jack_max = -1;
+    long int id, samp_id;
+    long int id_max = 0, sid_max = -1;
     float weight;
+    float d[3];
 
-    long int *jid;
+    long int *sid;
     float *w;
-    simple_array saw, saj;
+    simple_array sa_w, sa_sid;
 
     fp = check_fopen( file, "r" );
 
@@ -86,22 +112,25 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
         fprintf( stderr, "\nError reading file: %s\n", file );
         exit( 1 );
     }
-    saw = sa_init( N_START, sizeof( float ) );
-    saj = sa_init( N_START, sizeof( long int ) );
+    sa_w = sa_init( N_START, sizeof( float ) );
+    sa_sid = sa_init( N_START, sizeof( long int ) );
     do {
         line_num++;
         if( line[0] == '#' )
             continue;
-        check = sscanf( line, "%ld %f %ld", &id, &weight, &id_jack );
+        check = sscanf( line, "%ld %f %ld %f %f %f", &id, &weight, &samp_id, &d[0], &d[1], &d[2] );
         switch ( check ) {
             case 1:
                 weight = 1.0;
-                id_jack = 0;
+                samp_id = 0;
                 break;
             case 2:
-                id_jack = 0;
+                samp_id = 0;
                 break;
             case 3:
+            case 4:
+            case 5:
+            case 6:
                 break;
             default:
                 fprintf( stderr, "\nError reading line %zu of file: %s\n", line_num, file );
@@ -111,32 +140,34 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
         if( ncols_read < check )
             ncols_read = check;
 
-        sa_ensure_length( &saw, id + 1 );
-        sa_ensure_length( &saj, id + 1 );
+        if( !sa_check_length( &sa_w, id + 1 ) ) {
+            sa_ensure_length( &sa_w, id + 1 );
+            sa_ensure_length( &sa_sid, id + 1 );
+        }
 
-        w = ( float * )sa_data( saw );
-        jid = ( long int * )sa_data( saj );
+        w = ( float * )sa_data( sa_w );
+        sid = ( long int * )sa_data( sa_sid );
 
         if( id_max < id )
             id_max = id;
-        if( id_jack_max < id_jack )
-            id_jack_max = id_jack;
+        if( sid_max < samp_id )
+            sid_max = samp_id;
 
         w[id] = weight;
-        jid[id] = id_jack;
+        sid[id] = samp_id;
 
     } while( fgets( line, MAXCHAR, fp ) != NULL );
 
     fclose( fp );
 
     /* we _cannot_ deallocate arrays, they are returned in a WEIGHT_SET */
-    sa_set_length( &saw, id_max + 1 );
-    sa_set_length( &saj, id_max + 1 );
+    sa_set_length( &sa_w, id_max + 1 );
+    sa_set_length( &sa_sid, id_max + 1 );
 
-    ws->w = ( float * )sa_data( saw );
-    ws->jack_id = ( long int * )sa_data( saj );
+    ws->w = ( float * )sa_data( sa_w );
+    ws->sid = ( long int * )sa_data( sa_sid );
     ws->nsize = id_max + 1;
-    ws->njack = id_jack_max + 1;
+    ws->nsamp = sid_max + 1;
 
     {
         /* do this *after* we initialize everything in */
@@ -160,14 +191,14 @@ ws_weight_total_jack( WEIGHT_SET * ws )
 {
     int i;
     double *wtj;
-    if( ws->njack <= 1 )
+    if( ws->nsamp <= 1 )
         return &( ws->wt );
 
-    wtj = check_alloc( ws->njack, sizeof( double ) );
+    wtj = check_alloc( ws->nsamp, sizeof( double ) );
 
     for( i = 0; i < ws->nsize; i++ ) {
-        long int k, j = ws->jack_id[i];
-        for( k = 0; k < ws->njack; k++ ) {
+        long int k, j = ws->sid[i];
+        for( k = 0; k < ws->nsamp; k++ ) {
             if( k != j )
                 wtj[k] += ( double )ws->w[i];
         }
