@@ -50,6 +50,29 @@ ws_mark_add( WEIGHT_SET * ws, const int i, double m )
         ws->mark[i] += m;
 }
 
+static inline double 
+ws_mark_data_mean( WEIGHT_SET * ws, const int idata )
+{
+    int i;
+    double mean = 0.0, norm = 0.0, mark = 0.0;
+    if( idata >= ws->ndata ) { 
+        fprintf(stderr, 
+                "WEIGHT_SET WARNING: mark_data_mean has no data (idata=%d, ndata=%d)\n", 
+                idata, ws->ndata);
+        return 0.0;
+    } 
+    for(i=0; i < ws->nsize; i++) { 
+        mark = ws->mark[i];
+        if( mark > 0 ) { 
+            mean += (mark * ws->d[idata][i]);
+            norm += mark;
+        } 
+    } 
+    mean /= norm;
+
+    return mean;
+}
+
 static inline double
 ws_get_weight( WEIGHT_SET * ws, const int i )
 {

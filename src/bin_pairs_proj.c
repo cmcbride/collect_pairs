@@ -91,7 +91,7 @@ main( int argc, char *argv[] )
         }
         pf_cleanup( &pf );
     }
-    fprintf( stderr, "DONE! Found %zu pairs in %d file%s\n",
+    fprintf( stderr, "Completed %zu pairs over %d file%s\n",
              pair_count, nfiles, nfiles > 1 ? "s" : "" );
     {
         /* post processing and output */
@@ -114,11 +114,36 @@ main( int argc, char *argv[] )
         fprintf( fp, "# pair_file: %s\n", pair_file );
         fprintf( fp, "# w1_file:   %s\n", w1_file );
         fprintf( fp, "# w1_total:  %.10g (over %d objects)\n", ws1.wt, ws1.ct );
+        {
+            int i;
+            int ndata = ws_get_ndata( &ws1 );
+            if( ndata ) {
+                double mean;
+                for(i = 0; i < ndata; i++) {
+                    mean = ws_mark_data_mean( &ws1, i );
+                    fprintf( stderr, "  weight1 column %d: pair-weighted mean = %g\n", i + 4, mean );
+                    fprintf( fp, "# w1 column %d: pair-weighted mean = %g\n", i + 4, mean );
+                }
+            }
+        }
         fprintf( fp, "# w2_file:   %s\n", w2_file );
         fprintf( fp, "# w2_total:  %.10g (over %d objects)\n", ws2.wt, ws2.ct );
+        {
+            int i;
+            int ndata = ws_get_ndata( &ws2 );
+            if( ndata ) {
+                double mean;
+                for(i = 0; i < ndata; i++) {
+                    mean = ws_mark_data_mean( &ws2, i );
+                    fprintf( stderr, "  weight2 column %d: pair-weighted mean = %g\n", i + 4, mean );
+                    fprintf( fp, "# w2 column %d: pair-weighted mean = %g\n", i + 4, mean );
+                }
+            }
+        }
         bins_fprint( &bins, fp );
         fclose( fp );
     }
+    fprintf( stderr, "DONE!\n" );
 
     bins_cleanup( &bins );
     ws_clean( &ws1 );
