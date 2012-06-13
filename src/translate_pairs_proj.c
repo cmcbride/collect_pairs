@@ -7,7 +7,7 @@
 
 /* edit the following to filter pairs */
 
-#define RP_MAX 50.0
+#define RP_MAX 70.0
 #define PI_MAX 100.0
 
 // #define VERBOSE
