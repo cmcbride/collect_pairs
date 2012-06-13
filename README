@@ -36,6 +36,8 @@ there are three things to do:
 There is a example bash shell script that runs steps 3-5 which
 is included, see: scripts/run_bin_proj.sh
 
+NOTE: some filtering and assumed bins are HARD CODED in the source.
+
 
 C LIBRARIES
 -----------
@@ -63,6 +65,7 @@ There are a number of useful binary utilities intended just for use.
     translate_pairs_proj  FITS_FILE PAIRS_FILE
 	convert FITS pair file into truncated (slightly filtered)
 	PAIRS file in PAIR_PROJ format (i.e. rp,pi and IDs only).
+	Filtering is HARD CODED, edit as you see fit!
 
 
     bin_pairs_proj  OUT_BASE  WEIGHT1  WEIGHT2  PAIRS*
@@ -83,6 +86,8 @@ There are a number of useful binary utilities intended just for use.
 	the weights (count += w1 * w2), and normalize by the total
 	weight represented in the weight files.
 
+	NOTE: The binning is hard coded, edit source to change it!
+
 
     bin_pairs_proj_jack  OUT_BASE WEIGHT1 WEIGHT2  PAIRS*
 	Similar utility to "bin_pairs_proj" but now does this for
@@ -93,6 +98,8 @@ There are a number of useful binary utilities intended just for use.
 	to which jackknife sample.  The number of jackknife samples
 	is auto determined based on these (zero based) jackknife IDs.
 
+	NOTE: The binning is hard coded, edit source to change it!
+
 
 POST-PROCESSING SCRIPTS
 -----------------------
@@ -100,9 +107,8 @@ POST-PROCESSING SCRIPTS
 These are simple scripts (in ruby, a language similar to python / perl)
 for various types of post-processing.  For example, combine counts
 into a statistic, such as xi(r), or calculate a jackknife covariance
-matrix.
-
-Typically, one runs these without an argument to get usage.
+matrix. These should work for any recently modern version of ruby
+(tested on MRI version 1.8.7).
 
     calc_cross_corr.rb
 	take binned output from bin_pairs_XXX and compute
@@ -111,6 +117,8 @@ Typically, one runs these without an argument to get usage.
 
     calc_jack_covar.rb
 	calculate jackknife covariance matrix from a number of samples.
+
+Typically, one runs these without an argument to get a usage statement.
 
 
 AUTHOR
