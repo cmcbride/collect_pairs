@@ -10,7 +10,7 @@
 int
 main( int argc, char *argv[] )
 {
-    int iarg = 0, nfiles = 0;
+    int iarg = 0, nfiles = 0, ncols = 0;
     size_t pair_count = 0;
     char *out_file, *w1_file, *w2_file, *pair_file;
     WEIGHT_SET ws1, ws2;
@@ -29,9 +29,17 @@ main( int argc, char *argv[] )
 
     /* read in weights */
     fprintf( stderr, "Reading weight1 file: %s\n", w1_file );
-    ws_read_ascii( &ws1, w1_file );
+    ncols = ws_read_ascii( &ws1, w1_file, 5 );
+    fprintf( stderr, "  found %d columns\n", ncols );
+    if( ncols > 3 ) {
+        ws_mark_init( &ws1 );
+    }
     fprintf( stderr, "Reading weight2 file: %s\n", w2_file );
-    ws_read_ascii( &ws2, w2_file );
+    ncols = ws_read_ascii( &ws2, w2_file, 5 );
+    fprintf( stderr, "  found %d columns\n", ncols );
+    if( ncols > 3 ) {
+        ws_mark_init( &ws2 );
+    }
 
     fprintf( stderr, "Initializing bins...\n" );
     bins = bins_alloc( 2, 21, 7 );      /* two dimensions: rp, pi */
@@ -64,6 +72,7 @@ main( int argc, char *argv[] )
                 pair_count += 1;
                 int i1 = ps[i].id1;
                 int i2 = ps[i].id2;
+                int n;
 
                 double w = ws_get_weight( &ws1, i1 ) * ws_get_weight( &ws2, i2 );
 
@@ -71,16 +80,15 @@ main( int argc, char *argv[] )
                     continue;
 
                 /* now bin pairs */
-                bins_add_pair_weight( &bins, w, ps[i].rp, ps[i].pi );
-//                 if(pair_count > bins.rc[0]) {
-//                     fprintf( stderr, "counts diverged at %zd > %zd: (%d,%d) %g,%g\n",
-//                              pair_count, bins.rc[0], i1, i2, ps[i].rp, ps[i].pi);
-//                     exit(EXIT_FAILURE);
-//                 }
-
+                n = bins_add_pair_weight( &bins, w, ps[i].rp, ps[i].pi );
+                if( n >= 0 ) {
+                    if( ws_get_ndata( &ws1 ) )
+                        ws_mark_add( &ws1, i1, 1.0 );
+                    if( ws_get_ndata( &ws2 ) )
+                        ws_mark_add( &ws2, i2, 1.0 );
+                }
             }
         }
-
         pf_cleanup( &pf );
     }
     fprintf( stderr, "DONE! Found %zu pairs in %d file%s\n",
@@ -105,15 +113,15 @@ main( int argc, char *argv[] )
 
         fprintf( fp, "# pair_file: %s\n", pair_file );
         fprintf( fp, "# w1_file:   %s\n", w1_file );
-        fprintf( fp, "# w1_total:  %.10g (over %d objects)\n\n", ws1.wt, ws1.ct );
+        fprintf( fp, "# w1_total:  %.10g (over %d objects)\n", ws1.wt, ws1.ct );
         fprintf( fp, "# w2_file:   %s\n", w2_file );
-        fprintf( fp, "# w2_total:  %.10g (over %d objects)\n\n", ws2.wt, ws2.ct );
+        fprintf( fp, "# w2_total:  %.10g (over %d objects)\n", ws2.wt, ws2.ct );
         bins_fprint( &bins, fp );
         fclose( fp );
     }
 
     bins_cleanup( &bins );
-    ws_cleaup( &ws1 );
-    ws_cleaup( &ws2 );
+    ws_cleanup( &ws1 );
+    ws_cleanup( &ws2 );
     return ( 0 );
 }

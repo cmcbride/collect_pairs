@@ -145,7 +145,7 @@ bins_check_dim( const BINS * b, const int idim, double v )
     return i;
 }
 
-void
+int
 bins_add_pair_weight( const BINS * b, const double w, ... )
 {
     int i, k, n = 0, nd;
@@ -175,6 +175,8 @@ bins_add_pair_weight( const BINS * b, const double w, ... )
         b->wc[n] += w;
         b->rc[n] += 1;
     }
+
+    return n;
 }
 
 static inline void
