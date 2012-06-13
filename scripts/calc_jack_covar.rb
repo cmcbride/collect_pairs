@@ -14,7 +14,7 @@ def parse_file(file)
     r = c[0,2].map { |v| v.to_f }
     c1 << r[0]
     c2 << r[1]
-    ma << c[2..-1]
+    ma << c[2..-1].map{ |p| p.center(15) }.join("  ")
   end
   [c1, c2, ma]
 end
@@ -93,9 +93,9 @@ if $0 == __FILE__
     fout.puts "# Njack = #{rs.size}"
     fout.puts "# FILES: "
     i = 0
-    fout.puts fnames.map do |f|
+    fnames.each do |f|
       i += 1
-      "# %3d %s\n" % [i, f]
+      fout.puts( "# %3d %s\n" % [i, f] )
     end
     avg.size.times do |i|
       fout.puts "%15.8f  %15.8f  %s" % [ avg[i], 0.0, ma[i] ]
