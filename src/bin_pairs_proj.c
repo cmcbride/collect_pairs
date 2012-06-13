@@ -82,9 +82,9 @@ main( int argc, char *argv[] )
                 /* now bin pairs */
                 n = bins_add_pair_weight( &bins, w, ps[i].rp, ps[i].pi );
                 if( n >= 0 ) {
-                    if( ws_get_ndata( &ws1 ) )
+                    if( ws_get_ndata( &ws1 ) > 0 )
                         ws_mark_add( &ws1, i1, 1.0 );
-                    if( ws_get_ndata( &ws2 ) )
+                    if( ws_get_ndata( &ws2 ) > 0 )
                         ws_mark_add( &ws2, i2, 1.0 );
                 }
             }
@@ -118,11 +118,15 @@ main( int argc, char *argv[] )
             int i;
             int ndata = ws_get_ndata( &ws1 );
             if( ndata ) {
-                double mean;
-                for(i = 0; i < ndata; i++) {
+                double mean, median;
+                for( i = 0; i < ndata; i++ ) {
                     mean = ws_mark_data_mean( &ws1, i );
-                    fprintf( stderr, "  weight1 column %d: pair-weighted mean = %g\n", i + 4, mean );
-                    fprintf( fp, "# w1 column %d: pair-weighted mean = %g\n", i + 4, mean );
+                    median = ws_mark_data_median( &ws1, i );
+                    fprintf( stderr,
+                             "  weight1 column %d: pair-weighted mean = %.4g, median = %.4g\n",
+                             i + 4, mean, median );
+                    fprintf( fp, "# w1 column %d: pair-weighted mean = %.4g, median = %.4g\n",
+                             i + 4, mean, median );
                 }
             }
         }
@@ -132,11 +136,15 @@ main( int argc, char *argv[] )
             int i;
             int ndata = ws_get_ndata( &ws2 );
             if( ndata ) {
-                double mean;
-                for(i = 0; i < ndata; i++) {
+                double mean, median;
+                for( i = 0; i < ndata; i++ ) {
                     mean = ws_mark_data_mean( &ws2, i );
-                    fprintf( stderr, "  weight2 column %d: pair-weighted mean = %g\n", i + 4, mean );
-                    fprintf( fp, "# w2 column %d: pair-weighted mean = %g\n", i + 4, mean );
+                    median = ws_mark_data_median( &ws2, i );
+                    fprintf( stderr,
+                             "  weight2 column %d: pair-weighted mean = %.4g, median = %.4g\n",
+                             i + 4, mean, median );
+                    fprintf( fp, "# w2 column %d: pair-weighted mean = %.4g, median = %.4g\n",
+                             i + 4, mean, median );
                 }
             }
         }

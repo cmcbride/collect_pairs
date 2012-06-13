@@ -31,6 +31,12 @@ typedef struct {
     int ndata;                  /* number of data dimensions */
 } WEIGHT_SET;
 
+/* this is a structure to ease qsort */
+typedef struct {
+    size_t i;
+    float d;
+} WS_SORT;
+
 static inline void
 ws_mark_init( WEIGHT_SET * ws )
 {
@@ -50,27 +56,119 @@ ws_mark_add( WEIGHT_SET * ws, const int i, double m )
         ws->mark[i] += m;
 }
 
-static inline double 
+static inline double
+ws_mark_total( WEIGHT_SET * ws )
+{
+    int i;
+    double t = 0.0;
+    for( i = 0; i < ws->nsize; i++ ) {
+        t += ws->mark[i];
+    }
+//     fprintf(stderr, "WS_MARK_TOTAL: %g\n", t);
+    return t;
+}
+
+static inline double
 ws_mark_data_mean( WEIGHT_SET * ws, const int idata )
 {
     int i;
     double mean = 0.0, norm = 0.0, mark = 0.0;
-    if( idata >= ws->ndata ) { 
-        fprintf(stderr, 
-                "WEIGHT_SET WARNING: mark_data_mean has no data (idata=%d, ndata=%d)\n", 
-                idata, ws->ndata);
+    if( idata >= ws->ndata ) {
+        fprintf( stderr,
+                 "WEIGHT_SET WARNING: mark_data_mean has no data (idata=%d, ndata=%d)\n",
+                 idata, ws->ndata );
         return 0.0;
-    } 
-    for(i=0; i < ws->nsize; i++) { 
+    }
+    for( i = 0; i < ws->nsize; i++ ) {
         mark = ws->mark[i];
-        if( mark > 0 ) { 
-            mean += (mark * ws->d[idata][i]);
+        if( mark > 0 ) {
+            mean += ( mark * ws->d[idata][i] );
             norm += mark;
-        } 
-    } 
+        }
+    }
     mean /= norm;
 
     return mean;
+}
+
+int
+ws_sort_cmp( const void *va, const void *vb )
+{
+    int r;
+    WS_SORT *a, *b;
+    a = ( WS_SORT * ) va;
+    b = ( WS_SORT * ) vb;
+
+    if( a->d < b->d )
+        r = -1;
+    else if( a->d > b->d )
+        r = 1;
+    else
+        r = 0;
+
+    return r;
+}
+
+static inline size_t *
+ws_sort_by_index( const size_t len, const float *data, size_t * index )
+{
+    size_t i = 0;
+    WS_SORT *sd;
+    if( NULL == index )
+        index = ( size_t * ) check_alloc( len, sizeof( size_t ) );
+
+    /* initializing sort structure */
+    sd = ( WS_SORT * ) check_alloc( len, sizeof( WS_SORT ) );
+    for( i = 0; i < len; i++ ) {
+        sd[i].i = i;
+        sd[i].d = data[i];
+    }
+
+    /* pass to qsort */
+    qsort( ( void * )sd, len, sizeof( WS_SORT ), ws_sort_cmp );
+
+    /* put results in the index */
+    for( i = 0; i < len; i++ )
+        index[i] = sd[i].i;
+
+    return index;
+}
+
+static inline double
+ws_mark_data_median( WEIGHT_SET * ws, const int idata )
+{
+    double med = 0.0;
+    if( idata >= ws->ndata ) {
+        fprintf( stderr,
+                 "WEIGHT_SET WARNING: mark_data_median has no data (idata=%d, ndata=%d)\n",
+                 idata, ws->ndata );
+        return 0.0;
+    }
+
+    {                           /* find median */
+        int i, k;
+        size_t *index;
+        double mcut = 0.0, msum = 0.0;
+
+        index = NULL;
+        index = ws_sort_by_index( ws->nsize, ws->d[idata], index );
+
+        /* take half of total */
+        mcut = ws_mark_total( ws ) / 2.0;
+
+        for( i = 0; i < ws->nsize; i++ ) {
+            k = index[i];
+            msum += ws->mark[k];
+
+            if( msum > mcut ) {
+                med = ws->d[idata][k];
+                break;
+            }
+        }
+        free( index );
+    }
+
+    return med;
 }
 
 static inline double
