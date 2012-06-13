@@ -81,6 +81,9 @@ sa_free( simple_array * sa )
     if( NULL != sa->data )
         free( sa->data );
     sa->data = NULL;
+    sa->count = 0;
+    sa->size = 0;
+
 }
 
 #endif
