@@ -19,31 +19,31 @@
 #define MAXCHAR 1024
 
 typedef struct {
-    int nsize;                  /* number of objects */
-    int nsamp;                  /* number of samples */
-    int ct;                     /* total count of w > 0 objects */
-    double wt;                  /* weight total */
-    float *w;                   /* weight itself */
-    long int *sid;              /* sample ID per object (e.g. jackknife) */
-    float *mark;                /* mark pair for some later calculation */
-    float **d;                  /* placeholders for extra data */
+    int nsize;      /* number of objects */
+    int nsamp;      /* number of samples */
+    int ct;         /* total count of w > 0 objects */
+    double wt;      /* weight total */
+    float *w;       /* weight itself */
+    long int *sid;  /* sample ID per object (e.g. jackknife) */
+    float *mark;    /* mark pair for some later calculation */   
+    float **d;      /* placeholders for extra data */
 } WEIGHT_SET;
 
-static inline void
+static inline void 
 ws_mark_init( WEIGHT_SET * ws )
-{
+{ 
     ws->mark = ( float * )check_alloc( ws->nsize, sizeof( float ) );
-}
+} 
 
-static inline void
+static inline void 
 ws_mark_free( WEIGHT_SET * ws )
-{
+{ 
     CLEAN( ws->mark );
-}
+} 
 
 static inline void
-ws_mark_add( WEIGHT_SET * ws, const int i, float m )
-{
+ws_mark_add( WEIGHT_SET *ws, const int i, float m ) 
+{ 
     ws->mark[i] += m;
 }
 
@@ -97,7 +97,7 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
     size_t line_num = 0;
     int check, ncols_read = -1;
 
-    long int id, samp_id;
+    long int id, samp_id; 
     long int id_max = 0, sid_max = -1;
     float weight;
     float d[3];
@@ -118,7 +118,8 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
         line_num++;
         if( line[0] == '#' )
             continue;
-        check = sscanf( line, "%ld %f %ld %f %f %f", &id, &weight, &samp_id, &d[0], &d[1], &d[2] );
+        check = sscanf( line, "%ld %f %ld %f %f %f", 
+                        &id, &weight, &samp_id, &d[0], &d[1], &d[2] );
         switch ( check ) {
             case 1:
                 weight = 1.0;
@@ -140,13 +141,13 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
         if( ncols_read < check )
             ncols_read = check;
 
-        if( !sa_check_length( &sa_w, id + 1 ) ) {
+        if( ! sa_check_length( &sa_w, id + 1) ) {
             sa_ensure_length( &sa_w, id + 1 );
             sa_ensure_length( &sa_sid, id + 1 );
-        }
+        } 
 
-        w = ( float * )sa_data( sa_w );
-        sid = ( long int * )sa_data( sa_sid );
+        w = ( float * )sa_data( &sa_w );
+        sid = ( long int * )sa_data( &sa_sid );
 
         if( id_max < id )
             id_max = id;
@@ -164,8 +165,8 @@ ws_read_ascii( WEIGHT_SET * ws, const char *file )
     sa_set_length( &sa_w, id_max + 1 );
     sa_set_length( &sa_sid, id_max + 1 );
 
-    ws->w = ( float * )sa_data( sa_w );
-    ws->sid = ( long int * )sa_data( sa_sid );
+    ws->w = ( float * )sa_data( &sa_w );
+    ws->sid = ( long int * )sa_data( &sa_sid );
     ws->nsize = id_max + 1;
     ws->nsamp = sid_max + 1;
 

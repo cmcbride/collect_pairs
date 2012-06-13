@@ -1,11 +1,19 @@
 /* this utility intends to simplify array usage */
+#pragma once
+#ifndef SIMPLE_ARRAY_DEFINED
+#define SIMPLE_ARRAY_DEFINED 1
 
 #include <stdlib.h>
 #include <stddef.h>
-#include "check_alloc.c"
+#include <check_alloc.c>
 
 #ifndef INLINE
 #define INLINE static inline
+#endif
+
+#ifndef TRUE
+#define TRUE 1
+#define FALSE 0
 #endif
 
 #define SA_GROW_BY_FACTOR 2
@@ -21,14 +29,11 @@ INLINE simple_array
 sa_init( const size_t count, const size_t size )
 {
     simple_array sa;
-    void *d;
 
-    // allocate memory
-    d = check_alloc( count, size );
-
+    sa.data = check_alloc( count, size );
     sa.count = count;
     sa.size = size;
-    sa.data = d;
+
     return sa;
 }
 
@@ -55,15 +60,27 @@ sa_ensure_length( simple_array * sa, const size_t count )
     return sa->data;
 }
 
-INLINE void *
-sa_data( const simple_array sa )
+INLINE int
+sa_check_length( simple_array * sa, const size_t count )
 {
-    return sa.data;
+    if( sa->count >= count )
+        return TRUE;
+    else
+        return FALSE;
+}
+
+INLINE void *
+sa_data( const simple_array * sa )
+{
+    return sa->data;
 }
 
 INLINE void
-sa_free( simple_array sa )
+sa_free( simple_array * sa )
 {
-    if( NULL != sa.data )
-        free( sa.data );
+    if( NULL != sa->data )
+        free( sa->data );
+    sa->data = NULL;
 }
+
+#endif
