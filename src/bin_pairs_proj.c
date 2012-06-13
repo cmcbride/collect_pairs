@@ -121,7 +121,7 @@ main( int argc, char *argv[] )
     }
 
     bins_cleanup( &bins );
-    ws_cleanup( &ws1 );
-    ws_cleanup( &ws2 );
+    ws_clean( &ws1 );
+    ws_clean( &ws2 );
     return ( 0 );
 }

@@ -11,7 +11,8 @@
 int
 main( int argc, char *argv[] )
 {
-    int iarg = 0, nfiles = 0, j;
+    int iarg = 0, nfiles = 0, ncols = 0;
+    int j;
     size_t pair_count = 0;
     char *out_file, *w1_file, *w2_file, *pair_file;
     int njack;
@@ -31,9 +32,11 @@ main( int argc, char *argv[] )
 
     /* read in weights */
     fprintf( stderr, "Reading weight1 file: %s\n", w1_file );
-    ws_read_ascii( &ws1, w1_file );
+    ncols = ws_read_ascii( &ws1, w1_file, 3 );
+    fprintf( stderr, "  found %d columns\n", ncols );
     fprintf( stderr, "Reading weight2 file: %s\n", w2_file );
-    ws_read_ascii( &ws2, w2_file );
+    ncols = ws_read_ascii( &ws2, w2_file, 3 );
+    fprintf( stderr, "  found %d columns\n", ncols );
 
     njack = ws_get_njack( &ws1 );
     if( njack != ws_get_njack( &ws2 ) ) {
@@ -129,7 +132,7 @@ main( int argc, char *argv[] )
             fprintf( fp, "# w1_total:  %.10g (full %.10g over %d objects)\n", wtj1[j], ws1.wt,
                      ws1.ct );
             fprintf( fp, "# w2_file:   %s\n", w2_file );
-            fprintf( fp, "# w2_total:  %.10g (full %.10g over %d objects))\n", wtj2[j], ws2.wt,
+            fprintf( fp, "# w2_total:  %.10g (full %.10g over %d objects)\n", wtj2[j], ws2.wt,
                      ws2.ct );
             bins_fprint( &bins[j], fp );
             fclose( fp );
@@ -138,7 +141,7 @@ main( int argc, char *argv[] )
         free( wtj1 );
         free( wtj2 );
     }
-    ws_cleaup( &ws1 );
-    ws_cleaup( &ws2 );
+    ws_clean( &ws1 );
+    ws_clean( &ws2 );
     return ( 0 );
 }

@@ -97,7 +97,7 @@ ws_get_nsize( WEIGHT_SET * ws )
 }
 
 void
-ws_cleanup( WEIGHT_SET * ws )
+ws_clean( WEIGHT_SET * ws )
 {
     CLEAN( ws->w );
     CLEAN( ws->sid );
