@@ -43,4 +43,4 @@ bak-clean:
 	rm -f *~ src/*~ lib/*~
 
 real-clean:
-	rm -f bin_pairs_proj bin_pairs_proj_jack bin_pairs_sep create_pairs_proj create_pairs_sep translate_pairs_proj translate_pairs_sep pairs_read_header
+	rm -f bin_pairs_proj bin_pairs_proj_jack bin_pairs_sep create_pairs_proj create_pairs_sep dump_pairs_proj translate_pairs_proj translate_pairs_sep pairs_read_header
