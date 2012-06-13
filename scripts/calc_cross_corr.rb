@@ -67,14 +67,13 @@ class Counts
     last_rp_bin = nil
     pi_bin_new = nil
     val = 0.0
-    require 'pp'
     @count.size.times do |i|
       if @matcher[i].size != 2
         raise "Can only integrate 2nd binned dimension: #{@matcher[i].size} not supported"
       end
       rp_bin, pi_bin = @matcher[i]
       if( rp_bin != last_rp_bin )
-        istat.push(val, 0, [ rp_bin, pi_bin_new ]) unless last_rp_bin.nil?
+        istat.push(val, 0, [ last_rp_bin, pi_bin_new ]) unless last_rp_bin.nil?
         last_rp_bin = rp_bin
         val = 0.0
         pi_bin_new = pi_bin
@@ -85,6 +84,8 @@ class Counts
         val += @count[i] * d_pi * 2.0
       end
     end
+    # update last bin!
+    istat.push(val, 0, [ last_rp_bin, pi_bin_new ])
     istat
   end
 
