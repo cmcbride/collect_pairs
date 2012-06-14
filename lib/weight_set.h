@@ -131,6 +131,8 @@ ws_sort_by_index( const size_t len, const float *data, size_t * index )
     for( i = 0; i < len; i++ )
         index[i] = sd[i].i;
 
+    CLEAN( sd );
+
     return index;
 }
 
@@ -220,6 +222,14 @@ ws_get_nsize( WEIGHT_SET * ws )
 void
 ws_clean( WEIGHT_SET * ws )
 {
+    if( ws->ndata > 0 ) {
+        int i;
+        for( i = 0; i < ws->ndata; i++ ) {
+            free( ws->d[i] );
+        }
+        CLEAN( ws->d );
+    }
+
     CLEAN( ws->w );
     CLEAN( ws->sid );
     CLEAN( ws->mark );
