@@ -11,7 +11,7 @@ int
 main( int argc, char *argv[] )
 {
     int iarg = 0, nfiles = 0, ncols = 0;
-    size_t pair_count = 0;
+    size_t pair_count_total = 0;
     char *out_file, *w1_file, *w2_file, *pair_file;
     WEIGHT_SET ws1, ws2;
     BINS bins;
@@ -42,20 +42,30 @@ main( int argc, char *argv[] )
     }
 
     fprintf( stderr, "Initializing bins...\n" );
-    bins = bins_alloc( 2, 21, 7 );      /* two dimensions: rp, pi */
-    bins_init_dim( &bins, 0, 0.1, 42.17, BINS_LOG );    /* rp */
-    bins_init_dim( &bins, 1, 0.0, 70.0, BINS_LINEAR );  /* pi */
+//     bins = bins_alloc( 2, 21, 7 );      /* two dimensions: rp, pi */
+//     bins_init_dim( &bins, 0, 0.1, 42.17, BINS_LOG );    /* rp */
+//     bins_init_dim( &bins, 1, 0.0, 70.0, BINS_LINEAR );  /* pi */
+
+    bins = bins_alloc( 2, 22, 20 );
+    bins_init_dim( &bins, 0, 0.1, 56.234133, BINS_LOG );
+    bins_init_dim( &bins, 1, 0.0, 100.0, BINS_LINEAR );
+
+//     bins = bins_alloc( 2, 5, 20);
+//     bins_init_dim( &bins, 0, 0.0,  20.0, BINS_LINEAR);
+//     bins_init_dim( &bins, 1, 0.0, 100.0, BINS_LINEAR);
+
 //     bins = bins_alloc( 2, 1, 1 );     /* two dimensions: rp, pi */
 //     bins_init_dim( &bins, 0, 0.0, 60.0, BINS_LINEAR );     /* rp */
 //     bins_init_dim( &bins, 1, 0.0, 110.0, BINS_LINEAR ); /* pi */
+
 //     bins = bins_alloc( 2, 4, 5); /* two dimensions: rp, pi */
 //     bins_init_dim( &bins, 0, 0,  40.0, BINS_LINEAR ); /* rp */
 //     bins_init_dim( &bins, 1, 0,  40.0, BINS_LINEAR ); /* pi */
 
-    pair_count = 0;
     for( nfiles = 0; iarg < argc; iarg++ ) {
         int i;
         size_t nread = 10000;
+        size_t pair_count = 0;
 
         PAIR_PROJ ps[nread];
 
@@ -90,9 +100,10 @@ main( int argc, char *argv[] )
             }
         }
         pf_cleanup( &pf );
+        pair_count_total += pair_count;
     }
     fprintf( stderr, "Completed %zu pairs over %d file%s\n",
-             pair_count, nfiles, nfiles > 1 ? "s" : "" );
+             pair_count_total, nfiles, nfiles > 1 ? "s" : "" );
     {
         /* post processing and output */
         FILE *fp;

@@ -13,7 +13,7 @@ main( int argc, char *argv[] )
 {
     int iarg = 0, nfiles = 0, ncols = 0;
     int j;
-    size_t pair_count = 0;
+    size_t pair_count_total = 0;
     char *out_file, *w1_file, *w2_file, *pair_file;
     int njack;
     WEIGHT_SET ws1, ws2;
@@ -50,6 +50,7 @@ main( int argc, char *argv[] )
         exit( EXIT_FAILURE );
     }
 
+    fprintf( stderr, "Initializing bins...\n" );
     bins = ( BINS * ) check_alloc( njack, sizeof( BINS ) );
 
     for( j = 0; j < njack; j++ ) {
@@ -57,26 +58,32 @@ main( int argc, char *argv[] )
 //         bins_init_dim( &bins[j], 0, 0,  10.0, BINS_LINEAR ); /* rp */
 //         bins_init_dim( &bins[j], 1, 0,  10.0, BINS_LINEAR ); /* pi */
 
-        bins[j] = bins_alloc( 2, 21, 7 );       /* two dimensions: rp, pi */
-        bins_init_dim( &bins[j], 0, 0.1, 42.17, BINS_LOG );     /* rp */
-        bins_init_dim( &bins[j], 1, 0.0, 70.00, BINS_LINEAR );  /* pi */
-    }
+//         bins[j] = bins_alloc( 2, 21, 7 );       /* two dimensions: rp, pi */
+//         bins_init_dim( &bins[j], 0, 0.1, 42.17, BINS_LOG );     /* rp */
+//         bins_init_dim( &bins[j], 1, 0.0, 70.00, BINS_LINEAR );  /* pi */
 
-    fprintf( stderr, "Initialized bins...\n" );
+        bins[j] = bins_alloc( 2, 22, 20 );
+        bins_init_dim( &bins[j], 0, 0.1, 56.234133, BINS_LOG );
+        bins_init_dim( &bins[j], 1, 0.0, 100.0, BINS_LINEAR );
+
+//         bins[j] = bins_alloc( 2, 5, 20 );
+//         bins_init_dim( &bins[j], 0, 0.0,  20.0, BINS_LINEAR);
+//         bins_init_dim( &bins[j], 1, 0.0, 100.0, BINS_LINEAR);
+    }
 
     for( nfiles = 0; iarg < argc; iarg++ ) {
         int i;
         size_t nread = 10000;
+        size_t pair_count = 0;
 
         PAIR_PROJ ps[nread];
 
         pair_file = argv[iarg];
-        fprintf( stderr, "  .. processing pairs in %s\n", pair_file );
+        fprintf( stderr, "Processing pairs in %s\n", pair_file );
 
         pf = pf_open_read( pair_file );
         nfiles += 1;
 
-        pair_count = 0;
         while( pair_count < pf_nrows( &pf ) ) {
             nread = pf_read_proj( &pf, ps, nread );
             pair_count += nread;
@@ -98,9 +105,10 @@ main( int argc, char *argv[] )
         }
 
         pf_cleanup( &pf );
+        pair_count_total += pair_count;
     }
     fprintf( stderr, "Completed %zu pairs over %d file%s\n",
-             pair_count, nfiles, nfiles > 1 ? "s" : "" );
+             pair_count_total, nfiles, nfiles > 1 ? "s" : "" );
     {
         double *wtj1, *wtj2;
         wtj1 = ws_weight_total_jack( &ws1 );
